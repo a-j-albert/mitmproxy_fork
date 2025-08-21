@@ -167,3 +167,10 @@ def mitmweb(args=None) -> int | None:  # pragma: no cover
 
     run(web.master.WebMaster, cmdline.mitmweb, args)
     return None
+
+if __name__ == "__main__":
+    if sys.argv[0].endswith("-script.pyw"):
+        sys.argv[0] = sys.argv[0][:-11]
+    elif sys.argv[0].endswith(".exe"):
+        sys.argv[0] = sys.argv[0][:-4]
+    sys.exit(mitmproxy())
