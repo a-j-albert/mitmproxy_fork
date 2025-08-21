@@ -391,7 +391,8 @@ class Message(serializable.Serializable):
         """
         if self.raw_content is None:
             return None
-        ce = self.headers.get("content-encoding")
+        # ce = self.headers.get("content-encoding")
+        ce = None if not any("content-encoding" == item for item in self.headers) else self.headers["content-encoding"]
         if ce:
             try:
                 content = encoding.decode(self.raw_content, ce)
