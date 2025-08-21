@@ -14,7 +14,9 @@ class DisableH2C:
     """
 
     def process_flow(self, f):
-        if f.request.headers.get("upgrade", "") == "h2c":
+        upgrade = "" if not any("upgrade" == item for item in f.request.headers) else f.request.headers["upgrade"]
+        # if f.request.headers.get("upgrade", "") == "h2c":
+        if upgrade == "h2c":
             logging.warning(
                 "HTTP/2 cleartext connections (h2c upgrade requests) are currently not supported."
             )

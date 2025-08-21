@@ -279,7 +279,9 @@ class HttpStream(layer.Layer):
         if (yield from self.check_killed(True)):
             return
 
-        if self.flow.request.headers.get("expect", "").lower() == "100-continue":
+        expect = "" if not any("expect" == item for item in self.flow.request.headers) else self.flow.request.headers["expect"]
+        # if self.flow.request.headers.get("expect", "").lower() == "100-continue":
+        if expect.lower() == "100-continue":
             continue_response = http.Response.make(100)
             continue_response.headers.clear()
             yield SendHttp(

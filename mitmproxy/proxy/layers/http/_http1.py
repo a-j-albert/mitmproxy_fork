@@ -250,7 +250,9 @@ class Http1Server(Http1Connection):
             yield commands.SendData(self.conn, raw)
         elif isinstance(event, ResponseData):
             assert self.response
-            if "chunked" in self.response.headers.get("transfer-encoding", "").lower():
+            transfer_encoding = "" if not any("transfer-encoding" == item for item in self.response.headers) else self.response.headers["transfer-encoding"]
+            # if "chunked" in self.response.headers.get("transfer-encoding", "").lower():
+            if "chunked" in transfer_encoding.lower():
                 raw = b"%x\r\n%s\r\n" % (len(event.data), event.data)
             else:
                 raw = event.data
@@ -259,12 +261,15 @@ class Http1Server(Http1Connection):
         elif isinstance(event, ResponseEndOfMessage):
             assert self.request
             assert self.response
-            if (
-                self.request.method.upper() != "HEAD"
-                and "chunked"
-                in self.response.headers.get("transfer-encoding", "").lower()
-            ):
-                yield commands.SendData(self.conn, b"0\r\n\r\n")
+            # if (
+            #     self.request.method.upper() != "HEAD"
+            #     and "chunked"
+            #     in self.response.headers.get("transfer-encoding", "").lower()
+            # ):
+            if self.request.method.upper() != "HEAD":
+                transfer_encoding = "" if not any("transfer-encoding" == item for item in self.response.headers) else self.response.headers["transfer-encoding"]
+                if "chunked" in transfer_encoding.lower():
+                    yield commands.SendData(self.conn, b"0\r\n\r\n")
             yield from self.mark_done(response=True)
         elif isinstance(event, ResponseProtocolError):
             if not (self.conn.state & ConnectionState.CAN_WRITE):

@@ -366,7 +366,8 @@ class Message(serializable.Serializable):
                 f"Message content must be bytes, not {type(value).__name__}. "
                 "Please use .text if you want to assign a str."
             )
-        ce = self.headers.get("content-encoding")
+        # ce = self.headers.get("content-encoding")
+        ce = None if not any("content-encoding" == item for item in self.headers) else self.headers["content-encoding"]
         try:
             self.raw_content = encoding.encode(value, ce or "identity")
         except ValueError:
@@ -375,7 +376,8 @@ class Message(serializable.Serializable):
             del self.headers["content-encoding"]
             self.raw_content = value
 
-        if "transfer-encoding" in self.headers:
+        # if "transfer-encoding" in self.headers:
+        if any("transfer-encoding" == item for item in self.headers):
             # https://httpwg.org/specs/rfc7230.html#header.content-length
             # don't set content-length if a transfer-encoding is provided
             pass
@@ -408,7 +410,9 @@ class Message(serializable.Serializable):
         if text is None:
             self.content = None
             return
-        enc = infer_content_encoding(self.headers.get("content-type", ""))
+        content_type = "" if not any("content-type" == item for item in self.headers) else self.headers["content-type"]
+        # enc = infer_content_encoding(self.headers.get("content-type", ""))
+        enc = infer_content_encoding(content_type)
 
         try:
             self.content = cast(bytes, encoding.encode(text, enc))

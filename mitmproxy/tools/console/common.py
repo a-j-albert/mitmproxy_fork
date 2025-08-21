@@ -826,7 +826,8 @@ def format_flow(
                 response_content_length = None
             response_code: int | None = f.response.status_code
             response_reason: str | None = f.response.reason
-            response_content_type = f.response.headers.get("content-type")
+            # response_content_type = f.response.headers.get("content-type")
+            response_content_type = None if not any("content-type" == item for item in f.response.headers) else f.response.headers["content-type"]
             if f.response.timestamp_end:
                 duration = max(
                     [f.response.timestamp_end - f.request.timestamp_start, 0]

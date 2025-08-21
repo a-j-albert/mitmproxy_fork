@@ -29,7 +29,8 @@ def connection_close(http_version, headers):
     If we don't have a Connection header, HTTP 1.1 connections are assumed
     to be persistent.
     """
-    if "connection" in headers:
+    # if "connection" in headers:
+    if any("connection" == item for item in headers):
         tokens = get_header_tokens(headers, "connection")
         if "close" in tokens:
             return True
@@ -105,7 +106,8 @@ def expected_http_body_size(
     #        remove the received Content-Length field prior to forwarding such
     #        a message downstream.
     #
-    if te_str := headers.get("transfer-encoding"):
+    # if te_str := headers.get("transfer-encoding"):
+    if te_str := None if not any("transfer-encoding" == item for item in headers) else headers["transfer-encoding"]:
         te = validate.parse_transfer_encoding(te_str)
         match te:
             case "chunked" | "compress,chunked" | "deflate,chunked" | "gzip,chunked":
@@ -144,7 +146,8 @@ def expected_http_body_size(
     #        the recipient times out before the indicated number of octets are
     #        received, the recipient MUST consider the message to be
     #        incomplete and close the connection.
-    if cl := headers.get("content-length"):
+    # if cl := headers.get("content-length"):
+    if cl := None if not any("content-length" == item for item in headers) else headers["content-length"]:
         return validate.parse_content_length(cl)
     #    6.  If this is a request message and none of the above are true, then
     #        the message body length is zero (no message body is present).
