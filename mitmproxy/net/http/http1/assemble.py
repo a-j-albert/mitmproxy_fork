@@ -35,7 +35,9 @@ def assemble_response_head(response):
 
 
 def assemble_body(headers, body_chunks, trailers):
-    if "chunked" in headers.get("transfer-encoding", "").lower():
+    # if "chunked" in headers.get("transfer-encoding", "").lower():
+    transfer_encoding = "" if not any("transfer-encoding" == item for item in headers) else headers["transfer-encoding"]
+    if "chunked" in transfer_encoding.lower():
         for chunk in body_chunks:
             if chunk:
                 yield b"%x\r\n%s\r\n" % (len(chunk), chunk)

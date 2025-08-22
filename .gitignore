@@ -31,3 +31,6 @@ sslkeylogfile.log
 coverage.xml
 web/coverage/
 .mypy_cache/
+/.vs/mitmproxy_fork/CopilotIndices/17.14.1091.29919
+/.vs/mitmproxy_fork/FileContentIndex
+/.vs

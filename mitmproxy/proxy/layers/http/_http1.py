@@ -391,7 +391,9 @@ class Http1Client(Http1Connection):
                 yield commands.SendData(self.conn, raw)
         elif isinstance(event, RequestEndOfMessage):
             assert self.request
-            if "chunked" in self.request.headers.get("transfer-encoding", "").lower():
+            # if "chunked" in self.request.headers.get("transfer-encoding", "").lower():
+            transfer_encoding = "" if not any("transfer-encoding" == item for item in self.request.headers) else self.request.headers["transfer-encoding"]
+            if "chunked" in transfer_encoding.lower():
                 yield commands.SendData(self.conn, b"0\r\n\r\n")
             elif http1.expected_http_body_size(self.request, self.response) == -1:
                 yield commands.CloseTcpConnection(self.conn, half_close=True)
