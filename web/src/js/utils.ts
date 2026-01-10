@@ -1,6 +1,6 @@
 import { isEqual } from "lodash";
 import * as React from "react";
-import { ContentViewData } from "./components/contentviews/useContentView";
+import type { ContentViewData } from "./components/contentviews/useContentView";
 
 window.React = React;
 
@@ -72,7 +72,16 @@ export function reverseString(s) {
     );
 }
 
-const xsrf = document.currentScript?.getAttribute("data-xsrf");
+function getCookie(name) {
+    const r = document.cookie.match(new RegExp("\\b" + name + "=([^;]*)\\b"));
+    return r ? r[1] : undefined;
+}
+
+let xsrf = () => {
+    const cached = getCookie("_xsrf");
+    xsrf = () => cached;
+    return xsrf();
+};
 
 export function fetchApi(
     url: string,
@@ -80,7 +89,7 @@ export function fetchApi(
 ): Promise<Response> {
     if (options.method && options.method !== "GET") {
         options.headers = options.headers || {};
-        options.headers["X-XSRFToken"] = xsrf;
+        options.headers["X-XSRFToken"] = xsrf();
     }
     if (url.startsWith("/")) {
         url = "." + url;
