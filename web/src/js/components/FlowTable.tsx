@@ -15,6 +15,8 @@ type FlowTableProps = {
     selectedIds: Set<string>;
     onlySelectedId: string | false;
     firstSelectedIndex: number | undefined;
+    displayColumnNames: string[];
+    listIndex: Map<string, number>;
 };
 
 type FlowTableState = {
@@ -63,7 +65,22 @@ export class PureFlowTable extends React.Component<
         if (snapshot) {
             autoscroll.adjustScrollTop(this.viewport);
         }
-        this.onViewportUpdate();
+        // Only recompute the virtual-scroll window when the flow list
+        // or the row height actually changed. Other call sites still
+        // drive onViewportUpdate as needed (componentDidMount, the
+        // resize listener, the viewport onScroll, the post-scroll-into-
+        // view call). Calling it unconditionally from here let
+        // setState -> componentDidUpdate -> setState spin whenever
+        // vScroll.end * rowHeight was less than scrollTop: the capped
+        // Math.min(scrollTop, vScroll.end * rowHeight) stayed strictly
+        // below scrollTop and the `state.viewportTop !== scrollTop`
+        // setState condition kept re-firing.
+        if (
+            prevProps.flowView !== this.props.flowView ||
+            prevProps.rowHeight !== this.props.rowHeight
+        ) {
+            this.onViewportUpdate();
+        }
 
         const { onlySelectedId } = this.props;
 
@@ -124,7 +141,13 @@ export class PureFlowTable extends React.Component<
 
     render() {
         const { vScroll, viewportTop } = this.state;
-        const { flowView, selectedIds, highlightedIds } = this.props;
+        const {
+            flowView,
+            selectedIds,
+            highlightedIds,
+            displayColumnNames,
+            listIndex,
+        } = this.props;
 
         return (
             <div
@@ -149,6 +172,8 @@ export class PureFlowTable extends React.Component<
                                     flow={flow}
                                     selected={selectedIds.has(flow.id)}
                                     highlighted={highlightedIds.has(flow.id)}
+                                    displayColumnNames={displayColumnNames}
+                                    rowNumber={listIndex.get(flow.id)!}
                                 />
                             ))}
                         <tr style={{ height: vScroll.paddingBottom }} />
@@ -166,4 +191,10 @@ export default connect((state: RootState) => ({
     onlySelectedId:
         state.flows.selected.length === 1 && state.flows.selected[0].id,
     firstSelectedIndex: state.flows._viewIndex.get(state.flows.selected[0]?.id),
+    // Fetch column names once at the table level; avoids N identical
+    // useAppSelector subscriptions inside each FlowRow.
+    displayColumnNames: state.options.web_columns,
+    // Pass list index so the # column shows the original flow number
+    // (list position), not the view position after sort/filter.
+    listIndex: state.flows._listIndex,
 }))(PureFlowTable);

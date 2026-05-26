@@ -58,7 +58,7 @@ function HttpMessageEdit({ flow, message, stopEdit }: HttpMessageEditProps) {
     const save = async () => {
         await dispatch(
             flowActions.update(flow, {
-                [part]: { content: editedContent || content || "" },
+                [part]: { content: editedContent ?? content ?? "" },
             }),
         );
         stopEdit();
@@ -228,7 +228,7 @@ function CopyButton({ flow, message }: CopyButtonProps) {
 }
 
 const isImage =
-    /^image\/(png|jpe?g|gif|webp|vnc.microsoft.icon|x-icon|svg\+xml)$/i;
+    /^image\/(png|jpe?g|gif|webp|avif|vnd\.microsoft\.icon|x-icon|svg\+xml)$/i;
 ViewImage.matches = (msg) =>
     isImage.test(MessageUtils.getContentType(msg) || "");
 

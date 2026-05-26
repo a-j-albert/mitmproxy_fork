@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import React, { type JSX } from "react";
-import { useAppDispatch, useAppSelector } from "../../ducks";
+import { useAppDispatch } from "../../ducks";
 import classnames from "classnames";
 import type { sortFunctions } from "../../flow/utils";
 import {
@@ -20,6 +20,7 @@ import type { Flow } from "../../flow";
 
 type FlowColumnProps = {
     flow: Flow;
+    rowNumber: number;
 };
 
 interface FlowColumn {
@@ -42,11 +43,8 @@ export const tls: FlowColumn = ({ flow }) => {
 };
 tls.headerName = "";
 
-export const index: FlowColumn = ({ flow }) => {
-    const index = useAppSelector(
-        (state) => state.flows._listIndex.get(flow.id)!,
-    );
-    return <td className="col-index">{index + 1}</td>;
+export const index: FlowColumn = ({ rowNumber }) => {
+    return <td className="col-index">{rowNumber + 1}</td>;
 };
 index.headerName = "#";
 
@@ -63,19 +61,21 @@ export const path: FlowColumn = ({ flow }) => {
     let err;
     if (flow.error) {
         if (flow.error.msg === "Connection killed.") {
-            err = <i className="fa fa-fw fa-times pull-right" />;
+            err = <i className="fa fa-fw fa-times float-right" />;
         } else {
-            err = <i className="fa fa-fw fa-exclamation pull-right" />;
+            err = <i className="fa fa-fw fa-exclamation float-right" />;
         }
     }
     return (
         <td className="col-path">
             {flow.is_replay === "request" && (
-                <i className="fa fa-fw fa-repeat pull-right" />
+                <i className="fa fa-fw fa-repeat float-right" />
             )}
-            {flow.intercepted && <i className="fa fa-fw fa-pause pull-right" />}
+            {flow.intercepted && (
+                <i className="fa fa-fw fa-pause float-right" />
+            )}
             {err}
-            <span className="marker pull-right">{flow.marked}</span>
+            <span className="marker float-right">{flow.marked}</span>
             {mainPath(flow)}
         </td>
     );
