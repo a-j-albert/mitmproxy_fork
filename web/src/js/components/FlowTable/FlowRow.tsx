@@ -3,6 +3,7 @@ import classnames from "classnames";
 import type { Flow } from "../../flow";
 import { useAppDispatch } from "../../ducks";
 import { select, selectRange, selectToggle } from "../../ducks/flows";
+import { isValidColumnName } from "../../flow/utils";
 import * as columns from "./FlowColumns";
 
 type FlowRowProps = {
@@ -11,6 +12,7 @@ type FlowRowProps = {
     highlighted: boolean;
     displayColumnNames: string[];
     rowNumber: number;
+    height: number;
 };
 
 export default React.memo(function FlowRow({
@@ -19,6 +21,7 @@ export default React.memo(function FlowRow({
     highlighted,
     displayColumnNames,
     rowNumber,
+    height,
 }: FlowRowProps) {
     const dispatch = useAppDispatch();
     const className = classnames({
@@ -50,12 +53,12 @@ export default React.memo(function FlowRow({
     );
 
     const displayColumns = displayColumnNames
+        .filter(isValidColumnName)
         .map((x) => columns[x])
-        .filter((x) => x)
         .concat(columns.quickactions);
 
     return (
-        <tr className={className} onClick={onClick}>
+        <tr className={className} onClick={onClick} style={{ height }}>
             {displayColumns.map((Column) => (
                 <Column key={Column.name} flow={flow} rowNumber={rowNumber} />
             ))}

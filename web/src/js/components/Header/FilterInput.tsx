@@ -1,16 +1,17 @@
 import React, { Component } from "react";
 import classnames from "classnames";
 import Filt from "../../filt/filt";
+import Icon, { type IconName } from "../common/Icon";
 import FilterDocs from "./FilterDocs";
 
 export enum FilterIcon {
     SEARCH = "search",
-    HIGHLIGHT = "tag",
-    INTERCEPT = "pause",
+    HIGHLIGHT = "highlight",
+    INTERCEPT = "intercept",
 }
 
 type FilterInputProps = {
-    icon: FilterIcon;
+    icon: IconName;
     color: string;
     placeholder: string;
     value: string;
@@ -29,8 +30,8 @@ export default class FilterInput extends Component<
 > {
     inputRef = React.createRef<HTMLInputElement>();
 
-    constructor(props, context) {
-        super(props, context);
+    constructor(props: FilterInputProps) {
+        super(props);
 
         // Consider both focus and mouseover for showing/hiding the tooltip,
         // because onBlur of the input is triggered before the click on the tooltip
@@ -50,7 +51,7 @@ export default class FilterInput extends Component<
         this.selectFilter = this.selectFilter.bind(this);
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: FilterInputProps) {
         // Local state intentionally diverges from props while typing
         // (only valid filters reach the parent via `onChange`), so an
         // unconditional sync would wipe the user's in-progress text on
@@ -145,7 +146,9 @@ export default class FilterInput extends Component<
                 })}
             >
                 <span className="input-group-addon">
-                    <i className={"fa fa-fw fa-" + icon} style={{ color }} />
+                    <span style={{ color }}>
+                        <Icon name={icon} strokeWidth={2.5} />
+                    </span>
                 </span>
                 <input
                     type="text"

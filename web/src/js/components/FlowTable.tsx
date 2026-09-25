@@ -34,8 +34,8 @@ export class PureFlowTable extends React.Component<
     private viewport = React.createRef<HTMLDivElement>();
     private head = React.createRef<HTMLTableSectionElement>();
 
-    constructor(props, context) {
-        super(props, context);
+    constructor(props: FlowTableProps) {
+        super(props);
 
         this.state = {
             vScroll: calcVScroll(),
@@ -60,8 +60,9 @@ export class PureFlowTable extends React.Component<
     componentDidUpdate(
         prevProps: FlowTableProps,
         prevState: FlowTableState,
-        snapshot,
+        snapshot: boolean,
     ) {
+        void prevState;
         if (snapshot) {
             autoscroll.adjustScrollTop(this.viewport);
         }
@@ -147,6 +148,7 @@ export class PureFlowTable extends React.Component<
             highlightedIds,
             displayColumnNames,
             listIndex,
+            rowHeight,
         } = this.props;
 
         return (
@@ -174,6 +176,7 @@ export class PureFlowTable extends React.Component<
                                     highlighted={highlightedIds.has(flow.id)}
                                     displayColumnNames={displayColumnNames}
                                     rowNumber={listIndex.get(flow.id)!}
+                                    height={rowHeight}
                                 />
                             ))}
                         <tr style={{ height: vScroll.paddingBottom }} />
